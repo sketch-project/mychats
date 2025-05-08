@@ -14,8 +14,8 @@ export type User = {
 } & Contact;
 
 export type Contact = {
-  is_contact_blocked: boolean;
-  is_contact_saved: boolean;
+  is_blocked: boolean;
+  is_saved: boolean;
 };
 
 export type UpdateProfileSchema = {

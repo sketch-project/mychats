@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -14,6 +15,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    Route::patch('/account/status', [UserController::class, 'updateStatus'])->name('account.status');
 
     Route::get('/chats', [ChatController::class, 'index'])->name('chats.index');
     Route::get('/contacts', [ChatController::class, 'index'])->name('contacts.index');

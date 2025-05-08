@@ -1,7 +1,7 @@
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { ChangeEvent, FormEventHandler, useRef } from 'react';
+import { ChangeEvent, FormEventHandler, useEffect, useRef, useState } from 'react';
 
 import DeleteUser from '@/components/delete-user';
 import HeadingSmall from '@/components/heading-small';
@@ -11,8 +11,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
-import { Camera } from 'lucide-react';
+import { Camera, MessageSquareDot } from 'lucide-react';
 import { Method } from '@/types/method';
+import { Switch } from '@/components/ui/switch';
+import { updateActiveStatusUser } from '@/api/users';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -31,6 +33,11 @@ type ProfileForm = {
 export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
     const { auth } = usePage<SharedData>().props;
     const avatarRef = useRef<HTMLImageElement>(null);
+    const [activeStatus, setActiveStatus] = useState(auth.user.active_status);
+
+    useEffect(() => {
+        setActiveStatus(auth.user.active_status);
+    }, [auth.user.active_status])
 
     const { data, setData, post, errors, processing, recentlySuccessful } = useForm<Required<ProfileForm>>({
         _method: "PATCH",
@@ -60,6 +67,11 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
             };
         }
     };
+
+    const onActiveStatusChanged = async (value: boolean) => {
+        setActiveStatus(value);
+        await updateActiveStatusUser(auth.user, {active_status: value});
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -162,6 +174,18 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                             </Transition>
                         </div>
                     </form>
+                </div>
+
+                <div>
+                    <HeadingSmall title="Account status" description="Set your account status" />
+                    <div className="flex items-center gap-3 mt-4">
+                        <MessageSquareDot/>
+                        <Label htmlFor="active_status" className="me-10">Active Status</Label>
+                        <Switch
+                            id="active_status"
+                            checked={activeStatus}
+                            onCheckedChange={onActiveStatusChanged}/>
+                    </div>
                 </div>
 
                 <DeleteUser />
